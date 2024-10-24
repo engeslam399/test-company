@@ -4,6 +4,7 @@ import com.example.testcompany.dto.EmployeeDto;
 import com.example.testcompany.entity.Employee;
 import com.example.testcompany.mapper.CustomMapper;
 import com.example.testcompany.repository.EmployeeRepository;
+import com.example.testcompany.exception.EmployeeAlreadyExists;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -26,8 +27,14 @@ public class EmployeeServiceImpl implements EmployeeService {
         return employeeDtos;
     }
 
+
     @Override
     public EmployeeDto addNewEmployee(EmployeeDto employeeDto) {
+        Optional<Employee> optionalEmployee = employeeRepository.findByPhoneNumber(employeeDto.getPhoneNumber());
+
+        if (optionalEmployee.isPresent()){
+            throw new EmployeeAlreadyExists("Employee already exists with Phone number " + employeeDto.getPhoneNumber());
+        }
         Employee employee = CustomMapper.mapToEmployee(employeeDto);
         return CustomMapper.mapToEmployeeDto(employeeRepository.save(employee));
     }
@@ -38,10 +45,10 @@ public class EmployeeServiceImpl implements EmployeeService {
         Employee employee = employeeRepository.findByPhoneNumber(employeeDto.getPhoneNumber())
                 .orElseThrow(() -> new RuntimeException("employee not found with phone number: " + employeeDto.getPhoneNumber()));
 
-        Employee employee1 = CustomMapper.mapToEmployee(employeeDto);
-        employee1.setRecId(employee.getRecId());
+        Employee updatedEmployee = CustomMapper.mapToEmployee(employeeDto);
+        updatedEmployee.setRecId(employee.getRecId());
 
-        return CustomMapper.mapToEmployeeDto(employeeRepository.save(employee1));
+        return CustomMapper.mapToEmployeeDto(employeeRepository.save(updatedEmployee));
     }
 
     @Override
@@ -49,12 +56,10 @@ public class EmployeeServiceImpl implements EmployeeService {
         boolean isDeleted = false;
 
         Optional<Employee> employee = employeeRepository.findByPhoneNumber(phoneNumber);
-
         if (employee.isPresent()) {
             employeeRepository.deleteByPhoneNumber(phoneNumber);
             isDeleted = true;
         }
-
         return isDeleted;
     }
 

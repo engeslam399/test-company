@@ -39,15 +39,14 @@ public class EmployeeController {
 
     @DeleteMapping("/employees")
     public ResponseEntity<ApiResponse> updateEmployee(@RequestParam String phoneNumber){
-
         boolean isDeleted = employeeService.deleteEmployeeByPhoneNumber(phoneNumber);
-
         if (isDeleted){
-            return new ResponseEntity<>(new ApiResponse(EmployeeConstants.STATUS_200,EmployeeConstants.MESSAGE_417_DELETE), HttpStatus.OK);
+            return new ResponseEntity<>(new ApiResponse(EmployeeConstants.STATUS_200,
+                                                        EmployeeConstants.MESSAGE_417_DELETE), HttpStatus.OK);
         }else{
-            return new ResponseEntity<>(new ApiResponse(EmployeeConstants.STATUS_417,EmployeeConstants.MESSAGE_417_DELETE), HttpStatus.EXPECTATION_FAILED);
+            return new ResponseEntity<>(new ApiResponse(EmployeeConstants.STATUS_417,
+                                                        EmployeeConstants.MESSAGE_417_DELETE), HttpStatus.EXPECTATION_FAILED);
         }
-
     }
 
 
